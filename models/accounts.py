@@ -24,6 +24,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 
 class Role(BaseModel):
+    
     __tablename__ = 'roles'
 
     role_name = db.Column(db.String(50), unique=True, nullable=False)
