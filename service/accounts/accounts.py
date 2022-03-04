@@ -116,3 +116,4 @@ class UpdateUser(Resource):
         #         'status': '200'
         # }
         return User.update_user(id, data)
+

@@ -19,12 +19,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 #     String: Callable
 #     Integer: Callable
 #
-#
+
 # db = MySQLAlchemy()
 
 
 class Role(BaseModel):
-    
+
     __tablename__ = 'roles'
 
     role_name = db.Column(db.String(50), unique=True, nullable=False)
@@ -36,9 +36,12 @@ def generate_uuid():
 
 class User(BaseModel):
     uuid = db.Column(db.String(255), unique=True, default=generate_uuid())
+    name = db.Column(db.String(255))
+    last_name = db.Column(db.String(255))
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    is_active = db.Column(db.Boolean, default=False, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     role = db.relationship('Role', backref=backref('role', uselist=False))
 
@@ -78,5 +81,3 @@ class User(BaseModel):
                 'status': '401'
             }
             return make_response(jsonify({'error': response}))
-
-
