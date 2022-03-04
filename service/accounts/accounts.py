@@ -5,9 +5,6 @@ from config import Config
 import jwt
 from flask_restful import Resource
 from flask import jsonify, request, make_response, Response
-
-# from main import app
-from main import app
 from models.accounts import *
 from werkzeug.security import generate_password_hash
 from functools import wraps
