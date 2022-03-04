@@ -7,7 +7,6 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from sqlalchemy.orm import backref
 from models.base import BaseModel, db
-
 # from sqlalchemy.orm import declarative_base
 from werkzeug.security import check_password_hash, generate_password_hash
 
