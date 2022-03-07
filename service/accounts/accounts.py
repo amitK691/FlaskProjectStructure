@@ -1,3 +1,4 @@
+import os
 import datetime
 import json
 import uuid
@@ -9,6 +10,11 @@ from models.accounts import *
 from werkzeug.security import generate_password_hash
 from functools import wraps
 from Tools.scripts.parse_html5_entities import get_json
+from flask import Flask, current_app
+from datetime import datetime,  timedelta
+
+
+app = Flask(__name__)
 
 
 def token_required(f):
@@ -53,12 +59,12 @@ class SingUp(Resource):
     def post(self):
         data = json.loads(request.data)
 
-        print(data.get('username'))
+        print(data.get('email'))
         user = User.query.filter_by(email=data.get('email')).first()
         if not user:
             user = User(email=data.get('email'),
-                        password=generate_password_hash(data.get('password')),
-                        username=data.get('username'))
+                        password=generate_password_hash(data.get('password')))
+
             db.session.add(user)
             db.session.commit()
             return make_response('Successfully registered.', 201)
@@ -66,30 +72,27 @@ class SingUp(Resource):
             return make_response('User already exists. Please Log in', 202)
 
 
+
+
+
 class LogIn(Resource):
 
-    def get(self):
-        auth = request.authorization
-
-        if not auth or not auth.username or not auth.password:
-            return make_response('Could not verify', 401, {
-                'WWW-Authenticate': 'Basic realm="Login required!"'})
-
-        user = User.query.filter_by(name=auth.username).first()
-
-        if not user:
-            return make_response('Could not verify', 401, {
-                'WWW-Authenticate': 'Basic realm="Login required!"'})
-
-        if check_password_hash(user.password, auth.password):
-            token = jwt.encode({'public_id': user.public_id,
-                                'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                                    minutes=30)}, app.config['SECRET_KEY'])
-
-            return jsonify({'token': token.decode('UTF-8')})
-
-        return make_response('Could not verify', 401, {
-            'WWW-Authenticate': 'Basic realm="Login required!"'})
+    def post(self):
+        
+        data = json.loads(request.data)
+        user = User.query.filter_by(email=data.get('email')).first()
+       
+        passs = check_password_hash(user.password, data.get('password'))
+        print(passs)
+        if passs == True:
+            token = jwt.encode({
+                'sub': user.email,
+                'exp': datetime.utcnow() + timedelta(minutes=30)},
+                os.environ['SECRET_KEY'])
+            
+            return jsonify({'status': 'successfully logged In', 'token': token})
+        else:
+            return jsonify({'status': 'Incorrect email or password'})
 
 
 class GetUsers(Resource):
@@ -116,4 +119,3 @@ class UpdateUser(Resource):
         #         'status': '200'
         # }
         return User.update_user(id, data)
-

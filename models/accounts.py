@@ -11,6 +11,7 @@ from models.base import BaseModel, db
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
+
 # Base = declarative_base()
 
 
@@ -36,20 +37,13 @@ def generate_uuid():
 
 class User(BaseModel):
     uuid = db.Column(db.String(255), unique=True, default=generate_uuid())
-    name = db.Column(db.String(255))
-    last_name = db.Column(db.String(255))
-    username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     is_active = db.Column(db.Boolean, default=False, nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     role = db.relationship('Role', backref=backref('role', uselist=False))
-
-    def json(self):
-        return {'username': self.username,
-                'email': self.email,
-                'uuid': self.uuid,
-                }
+    
+    
 
     @staticmethod
     def get_all_user():
@@ -59,16 +53,16 @@ class User(BaseModel):
     def get_user(id):
         query = User.query.filter_by(id=id).first()
         js = {
-            'username': query.username,
+            
             'email': query.email
         }
         return js
 
     @staticmethod
-    def update_user(id, _username):
+    def update_user(id, _email):
         user_to_update = User.query.filter_by(id=id).first()
         if user_to_update:
-            user_to_update.username = _username
+            user_to_update.email = _email
             db.session.commit()
             data = {
                 'message': 'User updated successfully',
